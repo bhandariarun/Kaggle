@@ -1,1 +1,749 @@
-{"metadata":{"kernelspec":{"display_name":"Python 3","language":"python","name":"python3"},"language_info":{"name":"python","version":"3.10.13","mimetype":"text/x-python","codemirror_mode":{"name":"ipython","version":3},"pygments_lexer":"ipython3","nbconvert_exporter":"python","file_extension":".py"},"kaggle":{"accelerator":"none","dataSources":[{"sourceId":28376,"sourceType":"datasetVersion","datasetId":22090},{"sourceId":285982,"sourceType":"datasetVersion","datasetId":6057}],"isInternetEnabled":false,"language":"python","sourceType":"notebook","isGpuEnabled":false}},"nbformat_minor":4,"nbformat":4,"cells":[{"cell_type":"markdown","source":"**This notebook is an exercise in the [SQL](https://www.kaggle.com/learn/intro-to-sql) course.  You can reference the tutorial at [this link](https://www.kaggle.com/dansbecker/getting-started-with-sql-and-bigquery).**\n\n---\n","metadata":{}},{"cell_type":"markdown","source":"# Introduction\n\nThe first test of your new data exploration skills uses data describing crime in the city of Chicago.\n\nBefore you get started, run the following cell. It sets up the automated feedback system to review your answers.","metadata":{}},{"cell_type":"code","source":"# Set up feedack system\nfrom learntools.core import binder\nbinder.bind(globals())\nfrom learntools.sql.ex1 import *\nprint(\"Setup Complete\")","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:38:56.132667Z","iopub.execute_input":"2024-05-18T08:38:56.133628Z","iopub.status.idle":"2024-05-18T08:39:03.970538Z","shell.execute_reply.started":"2024-05-18T08:38:56.133584Z","shell.execute_reply":"2024-05-18T08:39:03.969514Z"},"trusted":true},"execution_count":2,"outputs":[{"name":"stdout","text":"Using Kaggle's public dataset BigQuery integration.\nSetup Complete\n","output_type":"stream"}]},{"cell_type":"markdown","source":"Use the next code cell to fetch the dataset.","metadata":{}},{"cell_type":"code","source":"from google.cloud import bigquery\n\n# Create a \"Client\" object\nclient = bigquery.Client()\n\n# Construct a reference to the \"chicago_crime\" dataset\ndataset_ref = client.dataset(\"chicago_crime\", project=\"bigquery-public-data\")\n\n# API request - fetch the dataset\ndataset = client.get_dataset(dataset_ref)","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:39:09.066325Z","iopub.execute_input":"2024-05-18T08:39:09.066985Z","iopub.status.idle":"2024-05-18T08:39:09.666491Z","shell.execute_reply.started":"2024-05-18T08:39:09.066949Z","shell.execute_reply":"2024-05-18T08:39:09.665348Z"},"trusted":true},"execution_count":3,"outputs":[{"name":"stdout","text":"Using Kaggle's public dataset BigQuery integration.\n","output_type":"stream"}]},{"cell_type":"markdown","source":"# Exercises\n\n### 1) Count tables in the dataset\n\nHow many tables are in the Chicago Crime dataset?","metadata":{}},{"cell_type":"code","source":"# Write the code you need here to figure out the answer","metadata":{"trusted":true},"execution_count":null,"outputs":[]},{"cell_type":"code","source":"tables = list(client.list_tables(dataset))  # Store the answer as num_tables and then run this cell\nprint(len(tables))\nnum_tables = 1\n\n# Check your answer\nq_1.check()","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:39:30.523055Z","iopub.execute_input":"2024-05-18T08:39:30.523492Z","iopub.status.idle":"2024-05-18T08:39:30.811401Z","shell.execute_reply.started":"2024-05-18T08:39:30.523436Z","shell.execute_reply":"2024-05-18T08:39:30.810199Z"},"trusted":true},"execution_count":5,"outputs":[{"name":"stdout","text":"1\n","output_type":"stream"},{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.3333333333333333, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"1_CountTables\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"markdown","source":"For a hint or the solution, uncomment the appropriate line below.","metadata":{}},{"cell_type":"code","source":"#q_1.hint()\n#q_1.solution()","metadata":{"execution":{"iopub.status.busy":"2024-05-18T06:30:39.944836Z","iopub.execute_input":"2024-05-18T06:30:39.945178Z","iopub.status.idle":"2024-05-18T06:30:39.949462Z","shell.execute_reply.started":"2024-05-18T06:30:39.945153Z","shell.execute_reply":"2024-05-18T06:30:39.948592Z"},"trusted":true},"execution_count":13,"outputs":[]},{"cell_type":"markdown","source":"### 2) Explore the table schema\n\nHow many columns in the `crime` table have `TIMESTAMP` data?","metadata":{}},{"cell_type":"code","source":"# Write the code to figure out the answer","metadata":{"trusted":true},"execution_count":null,"outputs":[]},{"cell_type":"code","source":"table_ref = dataset_ref.table(\"crime\")\ntable = client.get_table(table_ref)\nprint(table.schema)\n\nnum_timestamp_fields = 2 # Put your answer here\n\n# Check your answer\nq_2.check()","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:40:46.942390Z","iopub.execute_input":"2024-05-18T08:40:46.942916Z","iopub.status.idle":"2024-05-18T08:40:47.245961Z","shell.execute_reply.started":"2024-05-18T08:40:46.942878Z","shell.execute_reply":"2024-05-18T08:40:47.244529Z"},"trusted":true},"execution_count":8,"outputs":[{"name":"stdout","text":"[SchemaField('unique_key', 'INTEGER', 'REQUIRED', None, (), None), SchemaField('case_number', 'STRING', 'NULLABLE', None, (), None), SchemaField('date', 'TIMESTAMP', 'NULLABLE', None, (), None), SchemaField('block', 'STRING', 'NULLABLE', None, (), None), SchemaField('iucr', 'STRING', 'NULLABLE', None, (), None), SchemaField('primary_type', 'STRING', 'NULLABLE', None, (), None), SchemaField('description', 'STRING', 'NULLABLE', None, (), None), SchemaField('location_description', 'STRING', 'NULLABLE', None, (), None), SchemaField('arrest', 'BOOLEAN', 'NULLABLE', None, (), None), SchemaField('domestic', 'BOOLEAN', 'NULLABLE', None, (), None), SchemaField('beat', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('district', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('ward', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('community_area', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('fbi_code', 'STRING', 'NULLABLE', None, (), None), SchemaField('x_coordinate', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('y_coordinate', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('year', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('updated_on', 'TIMESTAMP', 'NULLABLE', None, (), None), SchemaField('latitude', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('longitude', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('location', 'STRING', 'NULLABLE', None, (), None)]\n","output_type":"stream"},{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.3333333333333333, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"2_CountTimestampFields\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"markdown","source":"For a hint or the solution, uncomment the appropriate line below.","metadata":{}},{"cell_type":"code","source":"#q_2.hint()\n#q_2.solution()","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:40:55.371909Z","iopub.execute_input":"2024-05-18T08:40:55.372355Z","iopub.status.idle":"2024-05-18T08:40:55.378181Z","shell.execute_reply.started":"2024-05-18T08:40:55.372325Z","shell.execute_reply":"2024-05-18T08:40:55.376914Z"},"trusted":true},"execution_count":9,"outputs":[]},{"cell_type":"markdown","source":"### 3) Create a crime map\n\nIf you wanted to create a map with a dot at the location of each crime, what are the names of the two fields you likely need to pull out of the `crime` table to plot the crimes on a map?","metadata":{}},{"cell_type":"code","source":"# Write the code here to explore the data so you can find the answer","metadata":{},"execution_count":null,"outputs":[]},{"cell_type":"code","source":"fields_for_plotting = ['latitude', 'longitude'] # Put your answers here\n\n# Check your answer\nq_3.check()","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:41:39.358596Z","iopub.execute_input":"2024-05-18T08:41:39.359094Z","iopub.status.idle":"2024-05-18T08:41:39.369519Z","shell.execute_reply.started":"2024-05-18T08:41:39.359062Z","shell.execute_reply":"2024-05-18T08:41:39.367613Z"},"trusted":true},"execution_count":11,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.3333333333333333, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"3_IdentifyFieldsForPlotting\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"markdown","source":"For a hint or the solution, uncomment the appropriate line below.","metadata":{}},{"cell_type":"code","source":"#q_3.hint()\nq_3.solution()","metadata":{"execution":{"iopub.status.busy":"2024-05-18T08:41:01.161064Z","iopub.execute_input":"2024-05-18T08:41:01.161547Z","iopub.status.idle":"2024-05-18T08:41:01.172679Z","shell.execute_reply.started":"2024-05-18T08:41:01.161504Z","shell.execute_reply":"2024-05-18T08:41:01.171406Z"},"trusted":true},"execution_count":10,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"interactionType\": 3, \"questionType\": 2, \"questionId\": \"3_IdentifyFieldsForPlotting\", \"learnToolsVersion\": \"0.3.4\", \"valueTowardsCompletion\": 0.0, \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\", \"outcomeType\": 4}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Solution: \n```python\nfields_for_plotting = ['latitude', 'longitude']\n```","text/markdown":"<span style=\"color:#33cc99\">Solution:</span> \n```python\nfields_for_plotting = ['latitude', 'longitude']\n```"},"metadata":{}}]},{"cell_type":"markdown","source":"Thinking about the question above, there are a few columns that appear to have geographic data. Look at a few values (with the `list_rows()` command) to see if you can determine their relationship.  Two columns will still be hard to interpret. But it should be obvious how the `location` column relates to `latitude` and `longitude`.","metadata":{}},{"cell_type":"code","source":"# Scratch space for your code","metadata":{},"execution_count":null,"outputs":[]},{"cell_type":"markdown","source":"# Keep going\n\nYou've looked at the schema, but you haven't yet done anything exciting with the data itself. Things get more interesting when you get to the data, so keep going to **[write your first SQL query](https://www.kaggle.com/dansbecker/select-from-where).**","metadata":{}},{"cell_type":"markdown","source":"---\n\n\n\n\n*Have questions or comments? Visit the [course discussion forum](https://www.kaggle.com/learn/intro-to-sql/discussion) to chat with other learners.*","metadata":{}}]}
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "5c4784ee",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008973,
+     "end_time": "2024-05-18T08:52:17.264651",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:17.255678",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "**This notebook is an exercise in the [SQL](https://www.kaggle.com/learn/intro-to-sql) course.  You can reference the tutorial at [this link](https://www.kaggle.com/dansbecker/getting-started-with-sql-and-bigquery).**\n",
+    "\n",
+    "---\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "83fae430",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007147,
+     "end_time": "2024-05-18T08:52:17.280467",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:17.273320",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Introduction\n",
+    "\n",
+    "The first test of your new data exploration skills uses data describing crime in the city of Chicago.\n",
+    "\n",
+    "Before you get started, run the following cell. It sets up the automated feedback system to review your answers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "d1e0b9c2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:17.298856Z",
+     "iopub.status.busy": "2024-05-18T08:52:17.298145Z",
+     "iopub.status.idle": "2024-05-18T08:52:27.473234Z",
+     "shell.execute_reply": "2024-05-18T08:52:27.471751Z"
+    },
+    "papermill": {
+     "duration": 10.188358,
+     "end_time": "2024-05-18T08:52:27.476458",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:17.288100",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Using Kaggle's public dataset BigQuery integration.\n",
+      "Setup Complete\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Set up feedack system\n",
+    "from learntools.core import binder\n",
+    "binder.bind(globals())\n",
+    "from learntools.sql.ex1 import *\n",
+    "print(\"Setup Complete\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a7130680",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007367,
+     "end_time": "2024-05-18T08:52:27.492128",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:27.484761",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Use the next code cell to fetch the dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "c12c174e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:27.510404Z",
+     "iopub.status.busy": "2024-05-18T08:52:27.509476Z",
+     "iopub.status.idle": "2024-05-18T08:52:28.279705Z",
+     "shell.execute_reply": "2024-05-18T08:52:28.278442Z"
+    },
+    "papermill": {
+     "duration": 0.783509,
+     "end_time": "2024-05-18T08:52:28.283258",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:27.499749",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Using Kaggle's public dataset BigQuery integration.\n"
+     ]
+    }
+   ],
+   "source": [
+    "from google.cloud import bigquery\n",
+    "\n",
+    "# Create a \"Client\" object\n",
+    "client = bigquery.Client()\n",
+    "\n",
+    "# Construct a reference to the \"chicago_crime\" dataset\n",
+    "dataset_ref = client.dataset(\"chicago_crime\", project=\"bigquery-public-data\")\n",
+    "\n",
+    "# API request - fetch the dataset\n",
+    "dataset = client.get_dataset(dataset_ref)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "997aaa08",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00871,
+     "end_time": "2024-05-18T08:52:28.299860",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.291150",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Exercises\n",
+    "\n",
+    "### 1) Count tables in the dataset\n",
+    "\n",
+    "How many tables are in the Chicago Crime dataset?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "19d346e1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:28.321667Z",
+     "iopub.status.busy": "2024-05-18T08:52:28.319867Z",
+     "iopub.status.idle": "2024-05-18T08:52:28.328024Z",
+     "shell.execute_reply": "2024-05-18T08:52:28.326162Z"
+    },
+    "papermill": {
+     "duration": 0.02329,
+     "end_time": "2024-05-18T08:52:28.331824",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.308534",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Write the code you need here to figure out the answer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "f705984f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:28.352575Z",
+     "iopub.status.busy": "2024-05-18T08:52:28.351715Z",
+     "iopub.status.idle": "2024-05-18T08:52:28.659007Z",
+     "shell.execute_reply": "2024-05-18T08:52:28.657709Z"
+    },
+    "papermill": {
+     "duration": 0.322064,
+     "end_time": "2024-05-18T08:52:28.662207",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.340143",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "1\n"
+     ]
+    },
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.3333333333333333, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"1_CountTables\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "tables = list(client.list_tables(dataset))  # Store the answer as num_tables and then run this cell\n",
+    "print(len(tables))\n",
+    "num_tables = 1\n",
+    "\n",
+    "# Check your answer\n",
+    "q_1.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9610738",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008622,
+     "end_time": "2024-05-18T08:52:28.679197",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.670575",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "For a hint or the solution, uncomment the appropriate line below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "6de1ddc6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:28.701107Z",
+     "iopub.status.busy": "2024-05-18T08:52:28.699981Z",
+     "iopub.status.idle": "2024-05-18T08:52:28.705824Z",
+     "shell.execute_reply": "2024-05-18T08:52:28.704423Z"
+    },
+    "papermill": {
+     "duration": 0.019096,
+     "end_time": "2024-05-18T08:52:28.708695",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.689599",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#q_1.hint()\n",
+    "#q_1.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f17e3123",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008759,
+     "end_time": "2024-05-18T08:52:28.725934",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.717175",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 2) Explore the table schema\n",
+    "\n",
+    "How many columns in the `crime` table have `TIMESTAMP` data?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "ba53359b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:28.746114Z",
+     "iopub.status.busy": "2024-05-18T08:52:28.745209Z",
+     "iopub.status.idle": "2024-05-18T08:52:28.750333Z",
+     "shell.execute_reply": "2024-05-18T08:52:28.749317Z"
+    },
+    "papermill": {
+     "duration": 0.018064,
+     "end_time": "2024-05-18T08:52:28.753032",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.734968",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Write the code to figure out the answer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "57298b53",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:28.772762Z",
+     "iopub.status.busy": "2024-05-18T08:52:28.771812Z",
+     "iopub.status.idle": "2024-05-18T08:52:29.064252Z",
+     "shell.execute_reply": "2024-05-18T08:52:29.062966Z"
+    },
+    "papermill": {
+     "duration": 0.306045,
+     "end_time": "2024-05-18T08:52:29.067602",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:28.761557",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[SchemaField('unique_key', 'INTEGER', 'REQUIRED', None, (), None), SchemaField('case_number', 'STRING', 'NULLABLE', None, (), None), SchemaField('date', 'TIMESTAMP', 'NULLABLE', None, (), None), SchemaField('block', 'STRING', 'NULLABLE', None, (), None), SchemaField('iucr', 'STRING', 'NULLABLE', None, (), None), SchemaField('primary_type', 'STRING', 'NULLABLE', None, (), None), SchemaField('description', 'STRING', 'NULLABLE', None, (), None), SchemaField('location_description', 'STRING', 'NULLABLE', None, (), None), SchemaField('arrest', 'BOOLEAN', 'NULLABLE', None, (), None), SchemaField('domestic', 'BOOLEAN', 'NULLABLE', None, (), None), SchemaField('beat', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('district', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('ward', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('community_area', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('fbi_code', 'STRING', 'NULLABLE', None, (), None), SchemaField('x_coordinate', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('y_coordinate', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('year', 'INTEGER', 'NULLABLE', None, (), None), SchemaField('updated_on', 'TIMESTAMP', 'NULLABLE', None, (), None), SchemaField('latitude', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('longitude', 'FLOAT', 'NULLABLE', None, (), None), SchemaField('location', 'STRING', 'NULLABLE', None, (), None)]\n"
+     ]
+    },
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.3333333333333333, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"2_CountTimestampFields\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "table_ref = dataset_ref.table(\"crime\")\n",
+    "table = client.get_table(table_ref)\n",
+    "print(table.schema)\n",
+    "\n",
+    "num_timestamp_fields = 2 # Put your answer here\n",
+    "\n",
+    "# Check your answer\n",
+    "q_2.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "50311ed6",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008819,
+     "end_time": "2024-05-18T08:52:29.086435",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.077616",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "For a hint or the solution, uncomment the appropriate line below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "f586f767",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:29.109306Z",
+     "iopub.status.busy": "2024-05-18T08:52:29.108526Z",
+     "iopub.status.idle": "2024-05-18T08:52:29.112855Z",
+     "shell.execute_reply": "2024-05-18T08:52:29.111842Z"
+    },
+    "papermill": {
+     "duration": 0.018561,
+     "end_time": "2024-05-18T08:52:29.115418",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.096857",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#q_2.hint()\n",
+    "#q_2.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9171c41e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009588,
+     "end_time": "2024-05-18T08:52:29.134075",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.124487",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### 3) Create a crime map\n",
+    "\n",
+    "If you wanted to create a map with a dot at the location of each crime, what are the names of the two fields you likely need to pull out of the `crime` table to plot the crimes on a map?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "a55fce55",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:29.155713Z",
+     "iopub.status.busy": "2024-05-18T08:52:29.154945Z",
+     "iopub.status.idle": "2024-05-18T08:52:29.160266Z",
+     "shell.execute_reply": "2024-05-18T08:52:29.158729Z"
+    },
+    "papermill": {
+     "duration": 0.019721,
+     "end_time": "2024-05-18T08:52:29.163345",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.143624",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Write the code here to explore the data so you can find the answer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "102baa34",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:29.184036Z",
+     "iopub.status.busy": "2024-05-18T08:52:29.183533Z",
+     "iopub.status.idle": "2024-05-18T08:52:29.194464Z",
+     "shell.execute_reply": "2024-05-18T08:52:29.193502Z"
+    },
+    "papermill": {
+     "duration": 0.024308,
+     "end_time": "2024-05-18T08:52:29.196798",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.172490",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.3333333333333333, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"3_IdentifyFieldsForPlotting\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "fields_for_plotting = ['latitude', 'longitude'] # Put your answers here\n",
+    "\n",
+    "# Check your answer\n",
+    "q_3.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d336535e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009094,
+     "end_time": "2024-05-18T08:52:29.215941",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.206847",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "For a hint or the solution, uncomment the appropriate line below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "6708c508",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:29.239005Z",
+     "iopub.status.busy": "2024-05-18T08:52:29.237908Z",
+     "iopub.status.idle": "2024-05-18T08:52:29.250707Z",
+     "shell.execute_reply": "2024-05-18T08:52:29.248990Z"
+    },
+    "papermill": {
+     "duration": 0.028547,
+     "end_time": "2024-05-18T08:52:29.254085",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.225538",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"interactionType\": 3, \"questionType\": 2, \"questionId\": \"3_IdentifyFieldsForPlotting\", \"learnToolsVersion\": \"0.3.4\", \"valueTowardsCompletion\": 0.0, \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\", \"outcomeType\": 4}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc99\">Solution:</span> \n",
+       "```python\n",
+       "fields_for_plotting = ['latitude', 'longitude']\n",
+       "```"
+      ],
+      "text/plain": [
+       "Solution: \n",
+       "```python\n",
+       "fields_for_plotting = ['latitude', 'longitude']\n",
+       "```"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "#q_3.hint()\n",
+    "q_3.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1403019a",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010128,
+     "end_time": "2024-05-18T08:52:29.276617",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.266489",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Thinking about the question above, there are a few columns that appear to have geographic data. Look at a few values (with the `list_rows()` command) to see if you can determine their relationship.  Two columns will still be hard to interpret. But it should be obvious how the `location` column relates to `latitude` and `longitude`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "9b9b16d8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-18T08:52:29.299545Z",
+     "iopub.status.busy": "2024-05-18T08:52:29.299038Z",
+     "iopub.status.idle": "2024-05-18T08:52:29.305441Z",
+     "shell.execute_reply": "2024-05-18T08:52:29.303682Z"
+    },
+    "papermill": {
+     "duration": 0.021233,
+     "end_time": "2024-05-18T08:52:29.308366",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.287133",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Scratch space for your code"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bcca8f4e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010076,
+     "end_time": "2024-05-18T08:52:29.328569",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.318493",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Keep going\n",
+    "\n",
+    "You've looked at the schema, but you haven't yet done anything exciting with the data itself. Things get more interesting when you get to the data, so keep going to **[write your first SQL query](https://www.kaggle.com/dansbecker/select-from-where).**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "14000889",
+   "metadata": {
+    "papermill": {
+     "duration": 0.0102,
+     "end_time": "2024-05-18T08:52:29.350315",
+     "exception": false,
+     "start_time": "2024-05-18T08:52:29.340115",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "---\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "*Have questions or comments? Visit the [course discussion forum](https://www.kaggle.com/learn/intro-to-sql/discussion) to chat with other learners.*"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 22090,
+     "sourceId": 28376,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 6057,
+     "sourceId": 285982,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 17.034531,
+   "end_time": "2024-05-18T08:52:30.591476",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2024-05-18T08:52:13.556945",
+   "version": "2.5.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
