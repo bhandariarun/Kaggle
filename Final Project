@@ -1,0 +1,1739 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "f5808f0c",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00819,
+     "end_time": "2024-05-25T18:24:20.942035",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:20.933845",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "**This notebook is an exercise in the [Data Visualization](https://www.kaggle.com/learn/data-visualization) course.  You can reference the tutorial at [this link](https://www.kaggle.com/alexisbcook/final-project).**\n",
+    "\n",
+    "---\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b1d446d7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007683,
+     "end_time": "2024-05-25T18:24:20.958827",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:20.951144",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Now it's time for you to demonstrate your new skills with a project of your own!\n",
+    "\n",
+    "In this exercise, you will work with a dataset of your choosing.  Once you've selected a dataset, you'll design and create your own plot to tell interesting stories behind the data!\n",
+    "\n",
+    "## Setup\n",
+    "\n",
+    "Run the next cell to import and configure the Python libraries that you need to complete the exercise."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "4b7ae6d4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:20.978153Z",
+     "iopub.status.busy": "2024-05-25T18:24:20.977688Z",
+     "iopub.status.idle": "2024-05-25T18:24:23.227557Z",
+     "shell.execute_reply": "2024-05-25T18:24:23.226215Z"
+    },
+    "papermill": {
+     "duration": 2.263581,
+     "end_time": "2024-05-25T18:24:23.231043",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:20.967462",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Setup Complete\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "pd.plotting.register_matplotlib_converters()\n",
+    "import matplotlib.pyplot as plt\n",
+    "%matplotlib inline\n",
+    "import seaborn as sns\n",
+    "print(\"Setup Complete\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3b50583b",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007734,
+     "end_time": "2024-05-25T18:24:23.247094",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:23.239360",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "The questions below will give you feedback on your work. Run the following cell to set up the feedback system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "820d3bf6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:23.264795Z",
+     "iopub.status.busy": "2024-05-25T18:24:23.264227Z",
+     "iopub.status.idle": "2024-05-25T18:24:23.308794Z",
+     "shell.execute_reply": "2024-05-25T18:24:23.307266Z"
+    },
+    "papermill": {
+     "duration": 0.056598,
+     "end_time": "2024-05-25T18:24:23.311479",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:23.254881",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Setup Complete\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Set up code checking\n",
+    "from learntools.core import binder\n",
+    "binder.bind(globals())\n",
+    "from learntools.data_viz_to_coder.ex7 import *\n",
+    "print(\"Setup Complete\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea2f44dd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00797,
+     "end_time": "2024-05-25T18:24:23.327580",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:23.319610",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## Step 1: Attach a dataset to the notebook\n",
+    "\n",
+    "Begin by selecting a CSV dataset from [Kaggle Datasets](https://www.kaggle.com/datasets).  If you're unsure how to do this, please revisit the instructions in the previous tutorial.\n",
+    "\n",
+    "Once you have selected a dataset, click on the **[+ Add data]** option in the top right corner.  This will generate a pop-up window that you can use to search for your chosen dataset.  \n",
+    "\n",
+    "![ex6_search_dataset](https://storage.googleapis.com/kaggle-media/learn/images/cIIWPUS.png)\n",
+    "\n",
+    "Once you have found the dataset, click on the **[Add]** button to attach it to the notebook.  You can check that it was successful by looking at the **Data** dropdown menu to the right of the notebook -- look for an **input** folder containing a subfolder that matches the name of the dataset.\n",
+    "\n",
+    "<center>\n",
+    "<img src=\"https://storage.googleapis.com/kaggle-media/learn/images/nMYc1Nu.png\" width=30%><br/>\n",
+    "</center>\n",
+    "\n",
+    "You can click on the carat to the left of the name of the dataset to double-check that it contains a CSV file.  For instance, the image below shows that the example dataset contains two CSV files: (1) **dc-wikia-data.csv**, and (2) **marvel-wikia-data.csv**.\n",
+    "\n",
+    "<center>\n",
+    "<img src=\"https://storage.googleapis.com/kaggle-media/learn/images/B4sJkVA.png\" width=30%><br/>\n",
+    "</center>\n",
+    "\n",
+    "Once you've uploaded a dataset with a CSV file, run the code cell below **without changes** to receive credit for your work!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "0eda8f71",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:23.345404Z",
+     "iopub.status.busy": "2024-05-25T18:24:23.345004Z",
+     "iopub.status.idle": "2024-05-25T18:24:24.500388Z",
+     "shell.execute_reply": "2024-05-25T18:24:24.499352Z"
+    },
+    "papermill": {
+     "duration": 1.167679,
+     "end_time": "2024-05-25T18:24:24.503374",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:23.335695",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.25, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"1_AttachData\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct:</span> \n",
+       "\n"
+      ],
+      "text/plain": [
+       "Correct: \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Check for a dataset with a CSV file\n",
+    "file_path = '../input/mental-health-dataset/Mental Health Dataset.csv'\n",
+    "data = pd.read_csv(file_path)\n",
+    "step_1.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f20f33f",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008115,
+     "end_time": "2024-05-25T18:24:24.520168",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:24.512053",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## Step 2: Specify the filepath\n",
+    "\n",
+    "Now that the dataset is attached to the notebook, you can find its filepath.  To do this, begin by clicking on the CSV file you'd like to use.  This will open the CSV file in a tab below the notebook.  You can find the filepath towards the top of this new tab.  \n",
+    "\n",
+    "![ex6_filepath](https://storage.googleapis.com/kaggle-media/learn/images/fgXQV47.png)\n",
+    "\n",
+    "After you find the filepath corresponding to your dataset, fill it in as the value for `my_filepath` in the code cell below, and run the code cell to check that you've provided a valid filepath.  For instance, in the case of this example dataset, we would set\n",
+    "```\n",
+    "my_filepath = \"../input/fivethirtyeight-comic-characters-dataset/dc-wikia-data.csv\"\n",
+    "```  \n",
+    "Note that **you must enclose the filepath in quotation marks**; otherwise, the code will return an error.\n",
+    "\n",
+    "Once you've entered the filepath, you can close the tab below the notebook by clicking on the **[X]** at the top of the tab."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "c4a92a94",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:24.538925Z",
+     "iopub.status.busy": "2024-05-25T18:24:24.538514Z",
+     "iopub.status.idle": "2024-05-25T18:24:24.548247Z",
+     "shell.execute_reply": "2024-05-25T18:24:24.547180Z"
+    },
+    "papermill": {
+     "duration": 0.022108,
+     "end_time": "2024-05-25T18:24:24.550970",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:24.528862",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.25, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"2_Filepath\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct:</span> \n",
+       "\n"
+      ],
+      "text/plain": [
+       "Correct: \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Fill in the line below: Specify the path of the CSV file to read\n",
+    "my_filepath = '../input/mental-health-dataset/Mental Health Dataset.csv'\n",
+    "\n",
+    "# Check for a valid filepath to a CSV file in a dataset\n",
+    "step_2.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d35f6ad7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008388,
+     "end_time": "2024-05-25T18:24:24.569426",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:24.561038",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## Step 3: Load the data\n",
+    "\n",
+    "Use the next code cell to load your data file into `my_data`.  Use the filepath that you specified in the previous step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "672ec249",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:24.589834Z",
+     "iopub.status.busy": "2024-05-25T18:24:24.588699Z",
+     "iopub.status.idle": "2024-05-25T18:24:25.449693Z",
+     "shell.execute_reply": "2024-05-25T18:24:25.448634Z"
+    },
+    "papermill": {
+     "duration": 0.873509,
+     "end_time": "2024-05-25T18:24:25.452135",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:24.578626",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.25, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"3_LoadData\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct:</span> \n",
+       "\n"
+      ],
+      "text/plain": [
+       "Correct: \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Fill in the line below: Read the file into a variable my_data\n",
+    "my_data = pd.read_csv(my_filepath)\n",
+    "\n",
+    "# Check that a dataset has been uploaded into my_data\n",
+    "step_3.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b94cb8b1",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008578,
+     "end_time": "2024-05-25T18:24:25.469878",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.461300",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "**_After the code cell above is marked correct_**, run the code cell below without changes to view the first five rows of the data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "d985937a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:25.491014Z",
+     "iopub.status.busy": "2024-05-25T18:24:25.490562Z",
+     "iopub.status.idle": "2024-05-25T18:24:25.520632Z",
+     "shell.execute_reply": "2024-05-25T18:24:25.519577Z"
+    },
+    "papermill": {
+     "duration": 0.044424,
+     "end_time": "2024-05-25T18:24:25.523224",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.478800",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Timestamp</th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Country</th>\n",
+       "      <th>Occupation</th>\n",
+       "      <th>self_employed</th>\n",
+       "      <th>family_history</th>\n",
+       "      <th>treatment</th>\n",
+       "      <th>Days_Indoors</th>\n",
+       "      <th>Growing_Stress</th>\n",
+       "      <th>Changes_Habits</th>\n",
+       "      <th>Mental_Health_History</th>\n",
+       "      <th>Mood_Swings</th>\n",
+       "      <th>Coping_Struggles</th>\n",
+       "      <th>Work_Interest</th>\n",
+       "      <th>Social_Weakness</th>\n",
+       "      <th>mental_health_interview</th>\n",
+       "      <th>care_options</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>8/27/2014 11:29</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Not sure</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>8/27/2014 11:31</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>8/27/2014 11:32</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>8/27/2014 11:37</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>8/27/2014 11:43</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "         Timestamp  Gender        Country Occupation self_employed  \\\n",
+       "0  8/27/2014 11:29  Female  United States  Corporate           NaN   \n",
+       "1  8/27/2014 11:31  Female  United States  Corporate           NaN   \n",
+       "2  8/27/2014 11:32  Female  United States  Corporate           NaN   \n",
+       "3  8/27/2014 11:37  Female  United States  Corporate            No   \n",
+       "4  8/27/2014 11:43  Female  United States  Corporate            No   \n",
+       "\n",
+       "  family_history treatment Days_Indoors Growing_Stress Changes_Habits  \\\n",
+       "0             No       Yes    1-14 days            Yes             No   \n",
+       "1            Yes       Yes    1-14 days            Yes             No   \n",
+       "2            Yes       Yes    1-14 days            Yes             No   \n",
+       "3            Yes       Yes    1-14 days            Yes             No   \n",
+       "4            Yes       Yes    1-14 days            Yes             No   \n",
+       "\n",
+       "  Mental_Health_History Mood_Swings Coping_Struggles Work_Interest  \\\n",
+       "0                   Yes      Medium               No            No   \n",
+       "1                   Yes      Medium               No            No   \n",
+       "2                   Yes      Medium               No            No   \n",
+       "3                   Yes      Medium               No            No   \n",
+       "4                   Yes      Medium               No            No   \n",
+       "\n",
+       "  Social_Weakness mental_health_interview care_options  \n",
+       "0             Yes                      No     Not sure  \n",
+       "1             Yes                      No           No  \n",
+       "2             Yes                      No          Yes  \n",
+       "3             Yes                   Maybe          Yes  \n",
+       "4             Yes                      No          Yes  "
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Print the first five rows of the data\n",
+    "my_data.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "3a84250d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:25.544113Z",
+     "iopub.status.busy": "2024-05-25T18:24:25.543693Z",
+     "iopub.status.idle": "2024-05-25T18:24:25.558393Z",
+     "shell.execute_reply": "2024-05-25T18:24:25.557291Z"
+    },
+    "papermill": {
+     "duration": 0.027771,
+     "end_time": "2024-05-25T18:24:25.560699",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.532928",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "treatment                  object\n",
+       "family_history             object\n",
+       "Mental_Health_History      object\n",
+       "Occupation                 object\n",
+       "Growing_Stress             object\n",
+       "mental_health_interview    object\n",
+       "Changes_Habits             object\n",
+       "Social_Weakness            object\n",
+       "Work_Interest              object\n",
+       "self_employed              object\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "my_data.dtypes.sample(10)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81d161e6",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009115,
+     "end_time": "2024-05-25T18:24:25.579212",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.570097",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## Step 4: Visualize the data\n",
+    "\n",
+    "Use the next code cell to create a figure that tells a story behind your dataset.  You can use any chart type (_line chart, bar chart, heatmap, etc_) of your choosing!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "bfa09ad9",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:25.600425Z",
+     "iopub.status.busy": "2024-05-25T18:24:25.599512Z",
+     "iopub.status.idle": "2024-05-25T18:24:25.683030Z",
+     "shell.execute_reply": "2024-05-25T18:24:25.681662Z"
+    },
+    "papermill": {
+     "duration": 0.096978,
+     "end_time": "2024-05-25T18:24:25.685692",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.588714",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Country</th>\n",
+       "      <th>Occupation</th>\n",
+       "      <th>self_employed</th>\n",
+       "      <th>family_history</th>\n",
+       "      <th>treatment</th>\n",
+       "      <th>Days_Indoors</th>\n",
+       "      <th>Growing_Stress</th>\n",
+       "      <th>Changes_Habits</th>\n",
+       "      <th>Mental_Health_History</th>\n",
+       "      <th>Mood_Swings</th>\n",
+       "      <th>Coping_Struggles</th>\n",
+       "      <th>Work_Interest</th>\n",
+       "      <th>Social_Weakness</th>\n",
+       "      <th>mental_health_interview</th>\n",
+       "      <th>care_options</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Not sure</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Female</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Corporate</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>1-14 days</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Medium</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292359</th>\n",
+       "      <td>Male</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Business</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>15-30 days</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>Not sure</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292360</th>\n",
+       "      <td>Male</td>\n",
+       "      <td>South Africa</td>\n",
+       "      <td>Business</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>15-30 days</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292361</th>\n",
+       "      <td>Male</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Business</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>15-30 days</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292362</th>\n",
+       "      <td>Male</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Business</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>15-30 days</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292363</th>\n",
+       "      <td>Male</td>\n",
+       "      <td>United States</td>\n",
+       "      <td>Business</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>15-30 days</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Low</td>\n",
+       "      <td>Yes</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Maybe</td>\n",
+       "      <td>No</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>292364 rows × 16 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        Gender        Country Occupation self_employed family_history  \\\n",
+       "0       Female  United States  Corporate           NaN             No   \n",
+       "1       Female  United States  Corporate           NaN            Yes   \n",
+       "2       Female  United States  Corporate           NaN            Yes   \n",
+       "3       Female  United States  Corporate            No            Yes   \n",
+       "4       Female  United States  Corporate            No            Yes   \n",
+       "...        ...            ...        ...           ...            ...   \n",
+       "292359    Male  United States   Business           Yes            Yes   \n",
+       "292360    Male   South Africa   Business            No            Yes   \n",
+       "292361    Male  United States   Business            No            Yes   \n",
+       "292362    Male  United States   Business            No            Yes   \n",
+       "292363    Male  United States   Business            No            Yes   \n",
+       "\n",
+       "       treatment Days_Indoors Growing_Stress Changes_Habits  \\\n",
+       "0            Yes    1-14 days            Yes             No   \n",
+       "1            Yes    1-14 days            Yes             No   \n",
+       "2            Yes    1-14 days            Yes             No   \n",
+       "3            Yes    1-14 days            Yes             No   \n",
+       "4            Yes    1-14 days            Yes             No   \n",
+       "...          ...          ...            ...            ...   \n",
+       "292359       Yes   15-30 days             No          Maybe   \n",
+       "292360       Yes   15-30 days             No          Maybe   \n",
+       "292361        No   15-30 days             No          Maybe   \n",
+       "292362       Yes   15-30 days             No          Maybe   \n",
+       "292363       Yes   15-30 days             No          Maybe   \n",
+       "\n",
+       "       Mental_Health_History Mood_Swings Coping_Struggles Work_Interest  \\\n",
+       "0                        Yes      Medium               No            No   \n",
+       "1                        Yes      Medium               No            No   \n",
+       "2                        Yes      Medium               No            No   \n",
+       "3                        Yes      Medium               No            No   \n",
+       "4                        Yes      Medium               No            No   \n",
+       "...                      ...         ...              ...           ...   \n",
+       "292359                    No         Low              Yes            No   \n",
+       "292360                    No         Low              Yes            No   \n",
+       "292361                    No         Low              Yes            No   \n",
+       "292362                    No         Low              Yes            No   \n",
+       "292363                    No         Low              Yes            No   \n",
+       "\n",
+       "       Social_Weakness mental_health_interview care_options  \n",
+       "0                  Yes                      No     Not sure  \n",
+       "1                  Yes                      No           No  \n",
+       "2                  Yes                      No          Yes  \n",
+       "3                  Yes                   Maybe          Yes  \n",
+       "4                  Yes                      No          Yes  \n",
+       "...                ...                     ...          ...  \n",
+       "292359           Maybe                   Maybe     Not sure  \n",
+       "292360           Maybe                      No          Yes  \n",
+       "292361           Maybe                      No           No  \n",
+       "292362           Maybe                      No          Yes  \n",
+       "292363           Maybe                      No          Yes  \n",
+       "\n",
+       "[292364 rows x 16 columns]"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_filtered = my_data.drop('Timestamp', axis=1)\n",
+    "df_filtered"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "34ea04f4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:25.708103Z",
+     "iopub.status.busy": "2024-05-25T18:24:25.707642Z",
+     "iopub.status.idle": "2024-05-25T18:24:25.715573Z",
+     "shell.execute_reply": "2024-05-25T18:24:25.714244Z"
+    },
+    "papermill": {
+     "duration": 0.022143,
+     "end_time": "2024-05-25T18:24:25.718159",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.696016",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Index(['Gender', 'Country', 'Occupation', 'self_employed', 'family_history',\n",
+       "       'treatment', 'Days_Indoors', 'Growing_Stress', 'Changes_Habits',\n",
+       "       'Mental_Health_History', 'Mood_Swings', 'Coping_Struggles',\n",
+       "       'Work_Interest', 'Social_Weakness', 'mental_health_interview',\n",
+       "       'care_options'],\n",
+       "      dtype='object')"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_filtered.columns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "18901573",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:25.741016Z",
+     "iopub.status.busy": "2024-05-25T18:24:25.740137Z",
+     "iopub.status.idle": "2024-05-25T18:24:26.270829Z",
+     "shell.execute_reply": "2024-05-25T18:24:26.269309Z"
+    },
+    "papermill": {
+     "duration": 0.545766,
+     "end_time": "2024-05-25T18:24:26.274313",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:25.728547",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 292364 entries, 0 to 292363\n",
+      "Data columns (total 16 columns):\n",
+      " #   Column                   Non-Null Count   Dtype \n",
+      "---  ------                   --------------   ----- \n",
+      " 0   Gender                   292364 non-null  object\n",
+      " 1   Country                  292364 non-null  object\n",
+      " 2   Occupation               292364 non-null  object\n",
+      " 3   self_employed            287162 non-null  object\n",
+      " 4   family_history           292364 non-null  object\n",
+      " 5   treatment                292364 non-null  object\n",
+      " 6   Days_Indoors             292364 non-null  object\n",
+      " 7   Growing_Stress           292364 non-null  object\n",
+      " 8   Changes_Habits           292364 non-null  object\n",
+      " 9   Mental_Health_History    292364 non-null  object\n",
+      " 10  Mood_Swings              292364 non-null  object\n",
+      " 11  Coping_Struggles         292364 non-null  object\n",
+      " 12  Work_Interest            292364 non-null  object\n",
+      " 13  Social_Weakness          292364 non-null  object\n",
+      " 14  mental_health_interview  292364 non-null  object\n",
+      " 15  care_options             292364 non-null  object\n",
+      "dtypes: object(16)\n",
+      "memory usage: 35.7+ MB\n"
+     ]
+    }
+   ],
+   "source": [
+    "df_filtered.info()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "b428bf8a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:26.298520Z",
+     "iopub.status.busy": "2024-05-25T18:24:26.298102Z",
+     "iopub.status.idle": "2024-05-25T18:24:26.817669Z",
+     "shell.execute_reply": "2024-05-25T18:24:26.816551Z"
+    },
+    "papermill": {
+     "duration": 0.534483,
+     "end_time": "2024-05-25T18:24:26.820195",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:26.285712",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Country</th>\n",
+       "      <th>Occupation</th>\n",
+       "      <th>self_employed</th>\n",
+       "      <th>family_history</th>\n",
+       "      <th>treatment</th>\n",
+       "      <th>Days_Indoors</th>\n",
+       "      <th>Growing_Stress</th>\n",
+       "      <th>Changes_Habits</th>\n",
+       "      <th>Mental_Health_History</th>\n",
+       "      <th>Mood_Swings</th>\n",
+       "      <th>Coping_Struggles</th>\n",
+       "      <th>Work_Interest</th>\n",
+       "      <th>Social_Weakness</th>\n",
+       "      <th>mental_health_interview</th>\n",
+       "      <th>care_options</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292359</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292360</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292361</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292362</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>292363</th>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "      <td>False</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>292364 rows × 16 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        Gender  Country  Occupation  self_employed  family_history  treatment  \\\n",
+       "0        False    False       False           True           False      False   \n",
+       "1        False    False       False           True           False      False   \n",
+       "2        False    False       False           True           False      False   \n",
+       "3        False    False       False          False           False      False   \n",
+       "4        False    False       False          False           False      False   \n",
+       "...        ...      ...         ...            ...             ...        ...   \n",
+       "292359   False    False       False          False           False      False   \n",
+       "292360   False    False       False          False           False      False   \n",
+       "292361   False    False       False          False           False      False   \n",
+       "292362   False    False       False          False           False      False   \n",
+       "292363   False    False       False          False           False      False   \n",
+       "\n",
+       "        Days_Indoors  Growing_Stress  Changes_Habits  Mental_Health_History  \\\n",
+       "0              False           False           False                  False   \n",
+       "1              False           False           False                  False   \n",
+       "2              False           False           False                  False   \n",
+       "3              False           False           False                  False   \n",
+       "4              False           False           False                  False   \n",
+       "...              ...             ...             ...                    ...   \n",
+       "292359         False           False           False                  False   \n",
+       "292360         False           False           False                  False   \n",
+       "292361         False           False           False                  False   \n",
+       "292362         False           False           False                  False   \n",
+       "292363         False           False           False                  False   \n",
+       "\n",
+       "        Mood_Swings  Coping_Struggles  Work_Interest  Social_Weakness  \\\n",
+       "0             False             False          False            False   \n",
+       "1             False             False          False            False   \n",
+       "2             False             False          False            False   \n",
+       "3             False             False          False            False   \n",
+       "4             False             False          False            False   \n",
+       "...             ...               ...            ...              ...   \n",
+       "292359        False             False          False            False   \n",
+       "292360        False             False          False            False   \n",
+       "292361        False             False          False            False   \n",
+       "292362        False             False          False            False   \n",
+       "292363        False             False          False            False   \n",
+       "\n",
+       "        mental_health_interview  care_options  \n",
+       "0                         False         False  \n",
+       "1                         False         False  \n",
+       "2                         False         False  \n",
+       "3                         False         False  \n",
+       "4                         False         False  \n",
+       "...                         ...           ...  \n",
+       "292359                    False         False  \n",
+       "292360                    False         False  \n",
+       "292361                    False         False  \n",
+       "292362                    False         False  \n",
+       "292363                    False         False  \n",
+       "\n",
+       "[292364 rows x 16 columns]"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_filtered.isnull()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "994567a5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:26.844719Z",
+     "iopub.status.busy": "2024-05-25T18:24:26.844316Z",
+     "iopub.status.idle": "2024-05-25T18:24:27.356554Z",
+     "shell.execute_reply": "2024-05-25T18:24:27.355445Z"
+    },
+    "papermill": {
+     "duration": 0.527116,
+     "end_time": "2024-05-25T18:24:27.359144",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:26.832028",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Gender                        0\n",
+       "Country                       0\n",
+       "Occupation                    0\n",
+       "self_employed              5202\n",
+       "family_history                0\n",
+       "treatment                     0\n",
+       "Days_Indoors                  0\n",
+       "Growing_Stress                0\n",
+       "Changes_Habits                0\n",
+       "Mental_Health_History         0\n",
+       "Mood_Swings                   0\n",
+       "Coping_Struggles              0\n",
+       "Work_Interest                 0\n",
+       "Social_Weakness               0\n",
+       "mental_health_interview       0\n",
+       "care_options                  0\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_filtered.isnull().sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "e93953bc",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:27.383803Z",
+     "iopub.status.busy": "2024-05-25T18:24:27.382928Z",
+     "iopub.status.idle": "2024-05-25T18:24:27.391657Z",
+     "shell.execute_reply": "2024-05-25T18:24:27.390552Z"
+    },
+    "papermill": {
+     "duration": 0.023732,
+     "end_time": "2024-05-25T18:24:27.394155",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:27.370423",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    NaN\n",
+       "1    NaN\n",
+       "2    NaN\n",
+       "3     No\n",
+       "4     No\n",
+       "Name: self_employed, dtype: object"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_filtered['self_employed'].head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "fb357280",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:27.418646Z",
+     "iopub.status.busy": "2024-05-25T18:24:27.418242Z",
+     "iopub.status.idle": "2024-05-25T18:24:27.485278Z",
+     "shell.execute_reply": "2024-05-25T18:24:27.483853Z"
+    },
+    "papermill": {
+     "duration": 0.082863,
+     "end_time": "2024-05-25T18:24:27.488445",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:27.405582",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Gender\n",
+       "Male      239850\n",
+       "Female     52514\n",
+       "Name: count, dtype: int64"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y = df_filtered['Gender'].value_counts()   #Count each category in the column name \"gender\"\n",
+    "y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "b49ddb18",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T18:24:27.519554Z",
+     "iopub.status.busy": "2024-05-25T18:24:27.519139Z",
+     "iopub.status.idle": "2024-05-25T18:24:27.824046Z",
+     "shell.execute_reply": "2024-05-25T18:24:27.822880Z"
+    },
+    "papermill": {
+     "duration": 0.323464,
+     "end_time": "2024-05-25T18:24:27.826991",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:27.503527",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.25, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"4_CreatePlot\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct:</span> \n",
+       "\n"
+      ],
+      "text/plain": [
+       "Correct: \n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAkIAAAJFCAYAAAAxopi4AAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuNSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/xnp5ZAAAACXBIWXMAAA9hAAAPYQGoP6dpAABTvUlEQVR4nO3dd3hUVeLG8XcmvZCEQAIJJZTQqxQVFClioa2ggG1VZC1Y1lXXVbG76rrYf/aObV0rrr0iqIAivUgPCSGhBNJ7mbm/PyLRSGghM2dm7vfzPHkgM5OZN8nAvHPuOec6LMuyBAAAYENO0wEAAABMoQgBAADboggBAADboggBAADboggBAADboggBAADboggBAADboggBAADboggBAADboggBUIcOHTRt2jTTMQ7I4XDorrvu8vjjzJ8/Xw6HQ/Pnz6+7bMSIEerdu7fHH1uSMjIy5HA49Morr3jl8QBQhACvSk9P19VXX62uXbsqMjJSkZGR6tmzp6666iqtXr3adDyv6NChgxwOhxwOh5xOp+Li4tSnTx9ddtllWrx4cZM9zptvvqnHHnusye6vKflyNsBuHJxrDPCOTz75RGeffbaCg4N1/vnnq1+/fnI6ndqwYYPmzJmjbdu2KT09XSkpKV7P1qFDB40YMcIrIxEdOnRQ8+bN9fe//12SVFxcrPXr1+vdd9/Vrl27dN111+mRRx6p9zUVFRUKDg5WcHDwYT/O+PHjtXbtWmVkZBz217jdblVVVSk0NFROZ+37xBEjRmjv3r1au3btYd9PY7NZlqXKykqFhIQoKCioyR4PwIEd/v8qABotLS1N55xzjlJSUjR37lwlJSXVu37WrFl6+umn6158/VlNTY3cbrdCQ0MPeJs2bdroz3/+c73LZs2apfPOO0+PPvqounTpoiuuuKLuuvDwcI/llWqL1r7y4+nHOhiHw2H08QE78v//dQE/8MADD6i0tFSzZ8/erwRJUnBwsK655hq1a9eu3uUbNmzQ5MmTFR8fr/DwcA0aNEgfffRRvdu88sorcjgcWrhwoa6//nolJCQoKipKkyZN0p49e+rd1rIs3XvvvWrbtq0iIyM1cuRI/fLLLw1mLigo0LXXXqt27dopLCxMqampmjVrltxud91t9s1peeihh/TYY4+pc+fOCgsL07p16474ZxQREaHXX39d8fHxuu+++/T7weo/zhEqLi7Wtddeqw4dOigsLEyJiYk65ZRTtHz5ckm1oziffvqptm3bVncYrkOHDpJ+mwf01ltv6bbbblObNm0UGRmpoqKiBucI7bNs2TINHTpUERER6tixo5599tl61+/7PfxxlOeP93mwbAeaI/Ttt99q2LBhioqKUlxcnM444wytX7++3m3uuusuORwObdmyRdOmTVNcXJxiY2N18cUXq6ys7PB+CYANMSIEeMEnn3yi1NRUHXfccYf9Nb/88otOOOEEtWnTRjfffLOioqL0zjvvaOLEiXr//fc1adKkerf/61//qubNm+vOO+9URkaGHnvsMV199dV6++23625zxx136N5779XYsWM1duxYLV++XKeeeqqqqqrq3VdZWZmGDx+u7OxsXX755Wrfvr0WLVqkmTNnaufOnfvNb5k9e7YqKip02WWXKSwsTPHx8Uf+Q5IUHR2tSZMm6aWXXtK6devUq1evBm83Y8YMvffee7r66qvVs2dP5ebmasGCBVq/fr0GDBigW2+9VYWFhcrKytKjjz5ad9+/d8899yg0NFQ33HCDKisrDzqClZ+fr7Fjx2rq1Kk699xz9c477+iKK65QaGiopk+ffkTf4+Fk+71vvvlGY8aMUadOnXTXXXepvLxcTzzxhE444QQtX768rkTtM3XqVHXs2FH333+/li9frhdffFGJiYmaNWvWEeUEbMMC4FGFhYWWJGvixIn7XZefn2/t2bOn7qOsrKzuupNPPtnq06ePVVFRUXeZ2+22hg4danXp0qXustmzZ1uSrNGjR1tut7vu8uuuu84KCgqyCgoKLMuyrJycHCs0NNQaN25cvdvdcsstliTroosuqrvsnnvusaKioqxNmzbVy3vzzTdbQUFBVmZmpmVZlpWenm5JsmJiYqycnJzD+nmkpKRY48aNO+D1jz76qCXJ+vDDD+suk2TdeeeddZ/HxsZaV1111UEfZ9y4cVZKSsp+l8+bN8+SZHXq1Knez/v3182bN6/usuHDh1uSrIcffrjussrKSqt///5WYmKiVVVVZVnWb7+H9PT0Q97ngbLt+3nOnj277rJ9j5Obm1t32apVqyyn02ldeOGFdZfdeeedliRr+vTp9e5z0qRJVosWLfZ7LAC1ODQGeFhRUZGkht/1jxgxQgkJCXUfTz31lCQpLy9P3377raZOnari4mLt3btXe/fuVW5urk477TRt3rxZ2dnZ9e7rsssuk8PhqPt82LBhcrlc2rZtm6TakYWqqir99a9/rXe7a6+9dr9c7777roYNG6bmzZvXPfbevXs1evRouVwuff/99/Vuf9ZZZykhIaFxP6A/2PdzKi4uPuBt4uLitHjxYu3YsaPRj3PRRRcpIiLisG4bHBysyy+/vO7z0NBQXX755crJydGyZcsaneFQdu7cqZUrV2ratGn1Rtn69u2rU045RZ999tl+XzNjxox6nw8bNky5ubl1z0MA9XFoDPCwZs2aSZJKSkr2u+65555TcXGxdu/eXW/y8JYtW2RZlm6//XbdfvvtDd5vTk6O2rRpU/d5+/bt613fvHlzSbWHdSTVFaIuXbrUu11CQkLdbffZvHmzVq9efcByk5OTU+/zjh07Nni7xtj3c9r3c2vIAw88oIsuukjt2rXTwIEDNXbsWF144YXq1KnTYT/OkWROTk5WVFRUvcu6du0qqXZez/HHH3/Y93Uk9v3OunXrtt91PXr00JdffqnS0tJ62Q72PIiJifFITsCfUYQAD4uNjVVSUlKDy6/3zRn64wTbfROSb7jhBp122mkN3m9qamq9zw+03NpqxA4Zbrdbp5xyim688cYGr99XAvY53JGVw7Hv5/TH7+/3pk6dqmHDhumDDz7QV199pQcffFCzZs3SnDlzNGbMmMN6nKbMLKneKNvvuVyuJn2cQ2nK5wFgBxQhwAvGjRunF198UT///LOOPfbYQ95+38hGSEiIRo8e3SQZ9u1PtHnz5nojJ3v27KkbNdqnc+fOKikpabLHPlwlJSX64IMP1K5dO/Xo0eOgt01KStKVV16pK6+8Ujk5ORowYIDuu+++uiJ0oGLSGDt27Nhv5GXTpk2SVDdZed/IS0FBQb2v3Teq83uHm23f72zjxo37Xbdhwwa1bNlyv5EqAEeGOUKAF9x4442KjIzU9OnTtXv37v2u/+O79cTERI0YMULPPfecdu7cud/t/7gs/nCMHj1aISEheuKJJ+o9XkM7HE+dOlU//vijvvzyy/2uKygoUE1NzRE//qGUl5frggsuUF5enm699daDjrAUFhbWuywxMVHJycmqrKysuywqKmq/2zVWTU2NnnvuubrPq6qq9NxzzykhIUEDBw6UVFseJdWbP+VyufT888/vd3+Hmy0pKUn9+/fXq6++Wq9grV27Vl999ZXGjh3b2G8JwK8YEQK8oEuXLnrzzTd17rnnqlu3bnU7S1uWpfT0dL355ptyOp1q27Zt3dc89dRTOvHEE9WnTx9deuml6tSpk3bv3q0ff/xRWVlZWrVq1RFlSEhI0A033KD7779f48eP19ixY7VixQp9/vnnatmyZb3b/uMf/9BHH32k8ePHa9q0aRo4cKBKS0u1Zs0avffee8rIyNjva45Edna23njjDUm1o0Dr1q2r21n673//e72JyX9UXFystm3bavLkyerXr5+io6P1zTffaMmSJXr44Yfrbjdw4EC9/fbbuv766zV48GBFR0drwoQJjcqbnJysWbNmKSMjQ127dtXbb7+tlStX6vnnn1dISIgkqVevXjr++OM1c+ZM5eXlKT4+Xm+99VaDpfFIsj344IMaM2aMhgwZor/85S91y+djY2O9cv41IOCZXLIG2M2WLVusK664wkpNTbXCw8OtiIgIq3v37taMGTOslStX7nf7tLQ068ILL7Rat25thYSEWG3atLHGjx9vvffee3W32bdse8mSJfW+tqFl2y6Xy7r77rutpKQkKyIiwhoxYoS1du1aKyUlpd7yecuyrOLiYmvmzJlWamqqFRoaarVs2dIaOnSo9dBDD9UtGd+33PvBBx887J9BSkqKJcmSZDkcDismJsbq1auXdemll1qLFy9u8Gv0u+XzlZWV1j/+8Q+rX79+VrNmzayoqCirX79+1tNPP13va0pKSqzzzjvPiouLsyTVLVff93N5991393ucAy2f79Wrl7V06VJryJAhVnh4uJWSkmI9+eST+319WlqaNXr0aCssLMxq1aqVdcstt1hff/31fvd5oGwNLZ+3LMv65ptvrBNOOMGKiIiwYmJirAkTJljr1q2rd5t9y+f37NlT7/IDLesHUItzjQEAANtijhAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALAtihAAALCtYNMBAGCfGpdbLsuSy1374XZLNe7ayxJUKIfDKTmDaj8cv/8zWHLyvg7AkaMIAWhylTUu5ZVWNfiRW1ql/F//zPv174Xl1apxWwe9z/SYy6SqkgPfICRKimhe+xHZ/Le/7/cR/7vbxUvBYU383QPwJxQhAEekqsat9L2l2pxTrC05JcrKL69XcPJKq1RSWeP9YNWltR9FWUf2dSGRUkyyFN9Ziu8ktegsxXes/Tyufe2oE4CARREC0KDyKpe25JRoy55ibd5dUvv3nBJl5pUdcvTGr1SXSblbaj/+yBlSW4Za/FqS6spSJykuhZIEBACKEGBzheXVv5ac2hGezb8WnuyCclkB1HcaxV0t5aXVfvzRvpLUqpfUdpDUdrCU1F8KjfR6TACN57As2/9XB9iGy21pbXahFqfnavHWPK3JLlROcaXpWIclPeYyOQ42R8gXOIOlxB5Sm0G15ajNICmhm+RwmE4G4AAoQkAAq3G5tTq7UIu35mlxeq6WZeSr2MT8nSbgF0WoIWExUvIxv40atRkkRSeYTgXgVxQhIIBU1bi1KqtAi7fmanF6npZty1dZlct0rCbht0WoIXHta0tRx+FSl1OlmCTTiQDboggBfqyi2qWV2wvqRnyWZ+arotptOpZHBFQR+qPWfWoLUZdTawsSk7ABr6EIAX4mfW+pvli7S/M35mjF9gJV1QRm8fmjgC5CvxfRXOo8SupympQ6WopqYToRDqBDhw669tprde2115qOgqPAqjHAD6zNLtRXv+zSF7/s0qbdNigDdlaeL619v/bD4ZSSB/w6WnRK7Vwjm068njZtml599dX9Lt+8ebNSU1MNJEKgoAgBPsjttrQsM19frN2lL3/Zpaz8ctORYILllrKX1n7M/5cUlVhbiLqNrS1HwaGmE3rV6aefrtmzZ9e7LCGBiec4OpycB/AhK7cX6J8fr9OQf8/VlGd/1EsL0ilB+E1pjrTyP9Lb50sPd5U+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",
+      "text/plain": [
+       "<Figure size 700x700 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Create a plot\n",
+    "fig = plt.figure(figsize = (10, 5))\n",
+    "y.plot.pie(autopct='%1.1f%%', startangle=90, figsize=(7, 7), title=\"Gender Distribution\") # Your code here\n",
+    "\n",
+    "# Check that a figure appears below\n",
+    "step_4.check()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a22e9b8c",
+   "metadata": {
+    "papermill": {
+     "duration": 0.012441,
+     "end_time": "2024-05-25T18:24:27.852141",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:27.839700",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## Keep going\n",
+    "\n",
+    "Learn how to use your skills after completing the micro-course to create data visualizations in a **[final tutorial](https://www.kaggle.com/alexisbcook/creating-your-own-notebooks)**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41295272",
+   "metadata": {
+    "papermill": {
+     "duration": 0.012216,
+     "end_time": "2024-05-25T18:24:27.877054",
+     "exception": false,
+     "start_time": "2024-05-25T18:24:27.864838",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "---\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "*Have questions or comments? Visit the [course discussion forum](https://www.kaggle.com/learn/data-visualization/discussion) to chat with other learners.*"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 4619539,
+     "sourceId": 7872606,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 10.56745,
+   "end_time": "2024-05-25T18:24:28.512281",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2024-05-25T18:24:17.944831",
+   "version": "2.5.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
