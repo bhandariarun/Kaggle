@@ -1,1 +1,869 @@
-{"metadata":{"jupytext":{"cell_metadata_filter":"-all","formats":"ipynb"},"kernelspec":{"display_name":"Python 3","language":"python","name":"python3"},"language_info":{"name":"python","version":"3.10.13","mimetype":"text/x-python","codemirror_mode":{"name":"ipython","version":3},"pygments_lexer":"ipython3","nbconvert_exporter":"python","file_extension":".py"},"kaggle":{"accelerator":"none","dataSources":[{"sourceId":1828856,"sourceType":"datasetVersion","datasetId":933090}],"isInternetEnabled":false,"language":"python","sourceType":"notebook","isGpuEnabled":false}},"nbformat_minor":4,"nbformat":4,"cells":[{"cell_type":"markdown","source":"**This notebook is an exercise in the [Feature Engineering](https://www.kaggle.com/learn/feature-engineering) course.  You can reference the tutorial at [this link](https://www.kaggle.com/ryanholbrook/creating-features).**\n\n---\n","metadata":{}},{"cell_type":"markdown","source":"# Introduction #\n\nIn this exercise you'll start developing the features you identified in Exercise 2 as having the most potential. As you work through this exercise, you might take a moment to look at the data documentation again and consider whether the features we're creating make sense from a real-world perspective, and whether there are any useful combinations that stand out to you.\n\nRun this cell to set everything up!","metadata":{}},{"cell_type":"code","source":"# Setup feedback system\nfrom learntools.core import binder\nbinder.bind(globals())\nfrom learntools.feature_engineering_new.ex3 import *\n\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import cross_val_score\nfrom xgboost import XGBRegressor\n\n\ndef score_dataset(X, y, model=XGBRegressor()):\n    # Label encoding for categoricals\n    for colname in X.select_dtypes([\"category\", \"object\"]):\n        X[colname], _ = X[colname].factorize()\n    # Metric for Housing competition is RMSLE (Root Mean Squared Log Error)\n    score = cross_val_score(\n        model, X, y, cv=5, scoring=\"neg_mean_squared_log_error\",\n    )\n    score = -1 * score.mean()\n    score = np.sqrt(score)\n    return score\n\n\n# Prepare data\ndf = pd.read_csv(\"../input/fe-course-data/ames.csv\")\nX = df.copy()\ny = X.pop(\"SalePrice\")","metadata":{"execution":{"iopub.status.busy":"2024-05-25T19:52:27.760199Z","iopub.execute_input":"2024-05-25T19:52:27.760587Z","iopub.status.idle":"2024-05-25T19:52:31.240315Z","shell.execute_reply.started":"2024-05-25T19:52:27.760556Z","shell.execute_reply":"2024-05-25T19:52:31.238975Z"},"trusted":true},"execution_count":1,"outputs":[]},{"cell_type":"markdown","source":"-------------------------------------------------------------------------------\n\nLet's start with a few mathematical combinations. We'll focus on features describing areas -- having the same units (square-feet) makes it easy to combine them in sensible ways. Since we're using XGBoost (a tree-based model), we'll focus on ratios and sums.\n\n# 1) Create Mathematical Transforms\n\nCreate the following features:\n\n- `LivLotRatio`: the ratio of `GrLivArea` to `LotArea`\n- `Spaciousness`: the sum of `FirstFlrSF` and `SecondFlrSF` divided by `TotRmsAbvGrd`\n- `TotalOutsideSF`: the sum of `WoodDeckSF`, `OpenPorchSF`, `EnclosedPorch`, `Threeseasonporch`, and `ScreenPorch`","metadata":{}},{"cell_type":"code","source":"# YOUR CODE HERE\nX_1 = pd.DataFrame()  # dataframe to hold new features\n\nX_1[\"LivLotRatio\"] = df.GrLivArea / df.LotArea\nX_1[\"Spaciousness\"] = (df.FirstFlrSF + df.SecondFlrSF) / df.TotRmsAbvGrd\nX_1[\"TotalOutsideSF\"] = df.WoodDeckSF + df.OpenPorchSF + df.EnclosedPorch + df.Threeseasonporch + df.ScreenPorch\n\n\n# Check your answer\nq_1.check()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T19:57:58.089092Z","iopub.execute_input":"2024-05-25T19:57:58.089603Z","iopub.status.idle":"2024-05-25T19:57:58.111849Z","shell.execute_reply.started":"2024-05-25T19:57:58.089560Z","shell.execute_reply":"2024-05-25T19:57:58.110398Z"},"trusted":true},"execution_count":6,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"1_Q1\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"code","source":"# Lines below will give you a hint or solution code\n#q_1.hint()\n#q_1.solution()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T19:58:03.271955Z","iopub.execute_input":"2024-05-25T19:58:03.272614Z","iopub.status.idle":"2024-05-25T19:58:03.279140Z","shell.execute_reply.started":"2024-05-25T19:58:03.272565Z","shell.execute_reply":"2024-05-25T19:58:03.277766Z"},"trusted":true},"execution_count":7,"outputs":[]},{"cell_type":"markdown","source":"-------------------------------------------------------------------------------\n\nIf you've discovered an interaction effect between a numeric feature and a categorical feature, you might want to model it explicitly using a one-hot encoding, like so:\n\n```\n# One-hot encode Categorical feature, adding a column prefix \"Cat\"\nX_new = pd.get_dummies(df.Categorical, prefix=\"Cat\")\n\n# Multiply row-by-row\nX_new = X_new.mul(df.Continuous, axis=0)\n\n# Join the new features to the feature set\nX = X.join(X_new)\n```\n\n# 2) Interaction with a Categorical\n\nWe discovered an interaction between `BldgType` and `GrLivArea` in Exercise 2. Now create their interaction features.","metadata":{}},{"cell_type":"code","source":"# YOUR CODE HERE\n# One-hot encode BldgType. Use `prefix=\"Bldg\"` in `get_dummies`\nX_2 = pd.get_dummies(df.BldgType, prefix=\"Bldg\")\n# Multiply\nX_2 = X_2.mul(df.GrLivArea, axis=0)\n\n\n# Check your answer\nq_2.check()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:01:26.072599Z","iopub.execute_input":"2024-05-25T20:01:26.073045Z","iopub.status.idle":"2024-05-25T20:01:26.088706Z","shell.execute_reply.started":"2024-05-25T20:01:26.073013Z","shell.execute_reply":"2024-05-25T20:01:26.087579Z"},"trusted":true},"execution_count":11,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"2_Q2\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"code","source":"# Lines below will give you a hint or solution code\n#q_2.hint()\n#q_2.solution()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:01:30.975385Z","iopub.execute_input":"2024-05-25T20:01:30.975778Z","iopub.status.idle":"2024-05-25T20:01:30.980990Z","shell.execute_reply.started":"2024-05-25T20:01:30.975749Z","shell.execute_reply":"2024-05-25T20:01:30.979671Z"},"trusted":true},"execution_count":12,"outputs":[]},{"cell_type":"markdown","source":"# 3) Count Feature\n\nLet's try creating a feature that describes how many kinds of outdoor areas a dwelling has. Create a feature `PorchTypes` that counts how many of the following are greater than 0.0:\n\n```\nWoodDeckSF\nOpenPorchSF\nEnclosedPorch\nThreeseasonporch\nScreenPorch\n```","metadata":{"lines_to_next_cell":0}},{"cell_type":"code","source":"X_3 = pd.DataFrame()\n\n# YOUR CODE HERE\nX_3[\"PorchTypes\"] = df[[\n    \"WoodDeckSF\",\n    \"OpenPorchSF\",\n    \"EnclosedPorch\",\n    \"Threeseasonporch\",\n    \"ScreenPorch\",\n]].gt(0.0).sum(axis=1)\n\n\n# Check your answer\nq_3.check()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:02:21.080466Z","iopub.execute_input":"2024-05-25T20:02:21.081058Z","iopub.status.idle":"2024-05-25T20:02:21.106797Z","shell.execute_reply.started":"2024-05-25T20:02:21.081015Z","shell.execute_reply":"2024-05-25T20:02:21.105628Z"},"trusted":true},"execution_count":14,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"3_Q3\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"code","source":"# Lines below will give you a hint or solution code\n#q_3.hint()\n#q_3.solution()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:02:26.123697Z","iopub.execute_input":"2024-05-25T20:02:26.124142Z","iopub.status.idle":"2024-05-25T20:02:26.129134Z","shell.execute_reply.started":"2024-05-25T20:02:26.124107Z","shell.execute_reply":"2024-05-25T20:02:26.127967Z"},"trusted":true},"execution_count":15,"outputs":[]},{"cell_type":"markdown","source":"# 4) Break Down a Categorical Feature\n\n`MSSubClass` describes the type of a dwelling:","metadata":{}},{"cell_type":"code","source":"df.MSSubClass.unique()","metadata":{"execution":{"iopub.status.busy":"2024-05-25T20:02:32.248643Z","iopub.execute_input":"2024-05-25T20:02:32.249114Z","iopub.status.idle":"2024-05-25T20:02:32.257773Z","shell.execute_reply.started":"2024-05-25T20:02:32.249082Z","shell.execute_reply":"2024-05-25T20:02:32.256194Z"},"trusted":true},"execution_count":16,"outputs":[{"execution_count":16,"output_type":"execute_result","data":{"text/plain":"array(['One_Story_1946_and_Newer_All_Styles', 'Two_Story_1946_and_Newer',\n       'One_Story_PUD_1946_and_Newer',\n       'One_and_Half_Story_Finished_All_Ages', 'Split_Foyer',\n       'Two_Story_PUD_1946_and_Newer', 'Split_or_Multilevel',\n       'One_Story_1945_and_Older', 'Duplex_All_Styles_and_Ages',\n       'Two_Family_conversion_All_Styles_and_Ages',\n       'One_and_Half_Story_Unfinished_All_Ages',\n       'Two_Story_1945_and_Older', 'Two_and_Half_Story_All_Ages',\n       'One_Story_with_Finished_Attic_All_Ages',\n       'PUD_Multilevel_Split_Level_Foyer',\n       'One_and_Half_Story_PUD_All_Ages'], dtype=object)"},"metadata":{}}]},{"cell_type":"markdown","source":"You can see that there is a more general categorization described (roughly) by the first word of each category. Create a feature containing only these first words by splitting `MSSubClass` at the first underscore `_`. (Hint: In the `split` method use an argument `n=1`.)","metadata":{}},{"cell_type":"code","source":"X_4 = pd.DataFrame()\n\n# YOUR CODE HERE\nX_4[\"MSClass\"] = df.MSSubClass.str.split(\"_\", n=1, expand=True)[0]\n\n# Check your answer\nq_4.check()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:03:03.261628Z","iopub.execute_input":"2024-05-25T20:03:03.262065Z","iopub.status.idle":"2024-05-25T20:03:03.290611Z","shell.execute_reply.started":"2024-05-25T20:03:03.262031Z","shell.execute_reply":"2024-05-25T20:03:03.289390Z"},"trusted":true},"execution_count":18,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"4_Q4\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"code","source":"# Lines below will give you a hint or solution code\n#q_4.hint()\n#q_4.solution()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:03:14.696283Z","iopub.execute_input":"2024-05-25T20:03:14.696671Z","iopub.status.idle":"2024-05-25T20:03:14.701090Z","shell.execute_reply.started":"2024-05-25T20:03:14.696640Z","shell.execute_reply":"2024-05-25T20:03:14.699673Z"},"trusted":true},"execution_count":19,"outputs":[]},{"cell_type":"markdown","source":"# 5) Use a Grouped Transform\n\nThe value of a home often depends on how it compares to typical homes in its neighborhood. Create a feature `MedNhbdArea` that describes the *median* of `GrLivArea` grouped on `Neighborhood`.","metadata":{}},{"cell_type":"code","source":"X_5 = pd.DataFrame()\n\n# YOUR CODE HERE\nX_5[\"MedNhbdArea\"] = df.groupby(\"Neighborhood\")[\"GrLivArea\"].transform(\"median\")\n\n# Check your answer\nq_5.check()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:03:41.741892Z","iopub.execute_input":"2024-05-25T20:03:41.742346Z","iopub.status.idle":"2024-05-25T20:03:41.764237Z","shell.execute_reply.started":"2024-05-25T20:03:41.742315Z","shell.execute_reply":"2024-05-25T20:03:41.763007Z"},"trusted":true},"execution_count":21,"outputs":[{"output_type":"display_data","data":{"text/plain":"<IPython.core.display.Javascript object>","application/javascript":"parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"5_Q5\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"},"metadata":{}},{"output_type":"display_data","data":{"text/plain":"Correct","text/markdown":"<span style=\"color:#33cc33\">Correct</span>"},"metadata":{}}]},{"cell_type":"code","source":"# Lines below will give you a hint or solution code\n#q_5.hint()\n#q_5.solution()","metadata":{"lines_to_next_cell":0,"execution":{"iopub.status.busy":"2024-05-25T20:03:52.517837Z","iopub.execute_input":"2024-05-25T20:03:52.518818Z","iopub.status.idle":"2024-05-25T20:03:52.525235Z","shell.execute_reply.started":"2024-05-25T20:03:52.518757Z","shell.execute_reply":"2024-05-25T20:03:52.523552Z"},"trusted":true},"execution_count":22,"outputs":[]},{"cell_type":"markdown","source":"Now you've made your first new feature set! If you like, you can run the cell below to score the model with all of your new features added:","metadata":{}},{"cell_type":"code","source":"X_new = X.join([X_1, X_2, X_3, X_4, X_5])\nscore_dataset(X_new, y)","metadata":{"execution":{"iopub.status.busy":"2024-05-25T20:03:55.874616Z","iopub.execute_input":"2024-05-25T20:03:55.875038Z","iopub.status.idle":"2024-05-25T20:04:00.007417Z","shell.execute_reply.started":"2024-05-25T20:03:55.875004Z","shell.execute_reply":"2024-05-25T20:04:00.006363Z"},"trusted":true},"execution_count":23,"outputs":[{"execution_count":23,"output_type":"execute_result","data":{"text/plain":"0.13954039591355258"},"metadata":{}}]},{"cell_type":"markdown","source":"# Keep Going #\n\n[**Untangle spatial relationships**](https://www.kaggle.com/ryanholbrook/clustering-with-k-means) by adding cluster labels to your dataset.","metadata":{}},{"cell_type":"markdown","source":"---\n\n\n\n\n*Have questions or comments? Visit the [course discussion forum](https://www.kaggle.com/learn/feature-engineering/discussion) to chat with other learners.*","metadata":{}}]}
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "f58c1140",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008013,
+     "end_time": "2024-05-25T20:05:22.175537",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:22.167524",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "**This notebook is an exercise in the [Feature Engineering](https://www.kaggle.com/learn/feature-engineering) course.  You can reference the tutorial at [this link](https://www.kaggle.com/ryanholbrook/creating-features).**\n",
+    "\n",
+    "---\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "77342648",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007222,
+     "end_time": "2024-05-25T20:05:22.190964",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:22.183742",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Introduction #\n",
+    "\n",
+    "In this exercise you'll start developing the features you identified in Exercise 2 as having the most potential. As you work through this exercise, you might take a moment to look at the data documentation again and consider whether the features we're creating make sense from a real-world perspective, and whether there are any useful combinations that stand out to you.\n",
+    "\n",
+    "Run this cell to set everything up!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "d000e34d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:22.208470Z",
+     "iopub.status.busy": "2024-05-25T20:05:22.207970Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.222721Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.220950Z"
+    },
+    "papermill": {
+     "duration": 3.027694,
+     "end_time": "2024-05-25T20:05:25.226513",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:22.198819",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Setup feedback system\n",
+    "from learntools.core import binder\n",
+    "binder.bind(globals())\n",
+    "from learntools.feature_engineering_new.ex3 import *\n",
+    "\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "from sklearn.model_selection import cross_val_score\n",
+    "from xgboost import XGBRegressor\n",
+    "\n",
+    "\n",
+    "def score_dataset(X, y, model=XGBRegressor()):\n",
+    "    # Label encoding for categoricals\n",
+    "    for colname in X.select_dtypes([\"category\", \"object\"]):\n",
+    "        X[colname], _ = X[colname].factorize()\n",
+    "    # Metric for Housing competition is RMSLE (Root Mean Squared Log Error)\n",
+    "    score = cross_val_score(\n",
+    "        model, X, y, cv=5, scoring=\"neg_mean_squared_log_error\",\n",
+    "    )\n",
+    "    score = -1 * score.mean()\n",
+    "    score = np.sqrt(score)\n",
+    "    return score\n",
+    "\n",
+    "\n",
+    "# Prepare data\n",
+    "df = pd.read_csv(\"../input/fe-course-data/ames.csv\")\n",
+    "X = df.copy()\n",
+    "y = X.pop(\"SalePrice\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bbad0d3e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007508,
+     "end_time": "2024-05-25T20:05:25.242562",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.235054",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "-------------------------------------------------------------------------------\n",
+    "\n",
+    "Let's start with a few mathematical combinations. We'll focus on features describing areas -- having the same units (square-feet) makes it easy to combine them in sensible ways. Since we're using XGBoost (a tree-based model), we'll focus on ratios and sums.\n",
+    "\n",
+    "# 1) Create Mathematical Transforms\n",
+    "\n",
+    "Create the following features:\n",
+    "\n",
+    "- `LivLotRatio`: the ratio of `GrLivArea` to `LotArea`\n",
+    "- `Spaciousness`: the sum of `FirstFlrSF` and `SecondFlrSF` divided by `TotRmsAbvGrd`\n",
+    "- `TotalOutsideSF`: the sum of `WoodDeckSF`, `OpenPorchSF`, `EnclosedPorch`, `Threeseasonporch`, and `ScreenPorch`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "a8b0eeec",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.260471Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.259564Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.280781Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.279861Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.032502,
+     "end_time": "2024-05-25T20:05:25.283066",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.250564",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"1_Q1\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# YOUR CODE HERE\n",
+    "X_1 = pd.DataFrame()  # dataframe to hold new features\n",
+    "\n",
+    "X_1[\"LivLotRatio\"] = df.GrLivArea / df.LotArea\n",
+    "X_1[\"Spaciousness\"] = (df.FirstFlrSF + df.SecondFlrSF) / df.TotRmsAbvGrd\n",
+    "X_1[\"TotalOutsideSF\"] = df.WoodDeckSF + df.OpenPorchSF + df.EnclosedPorch + df.Threeseasonporch + df.ScreenPorch\n",
+    "\n",
+    "\n",
+    "# Check your answer\n",
+    "q_1.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "c4274a25",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.301535Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.300907Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.306413Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.304974Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.017394,
+     "end_time": "2024-05-25T20:05:25.308830",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.291436",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Lines below will give you a hint or solution code\n",
+    "#q_1.hint()\n",
+    "#q_1.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e1e33f2",
+   "metadata": {
+    "papermill": {
+     "duration": 0.007783,
+     "end_time": "2024-05-25T20:05:25.324688",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.316905",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "-------------------------------------------------------------------------------\n",
+    "\n",
+    "If you've discovered an interaction effect between a numeric feature and a categorical feature, you might want to model it explicitly using a one-hot encoding, like so:\n",
+    "\n",
+    "```\n",
+    "# One-hot encode Categorical feature, adding a column prefix \"Cat\"\n",
+    "X_new = pd.get_dummies(df.Categorical, prefix=\"Cat\")\n",
+    "\n",
+    "# Multiply row-by-row\n",
+    "X_new = X_new.mul(df.Continuous, axis=0)\n",
+    "\n",
+    "# Join the new features to the feature set\n",
+    "X = X.join(X_new)\n",
+    "```\n",
+    "\n",
+    "# 2) Interaction with a Categorical\n",
+    "\n",
+    "We discovered an interaction between `BldgType` and `GrLivArea` in Exercise 2. Now create their interaction features."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "6fee5209",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.343580Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.342799Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.361435Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.359995Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.031813,
+     "end_time": "2024-05-25T20:05:25.364517",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.332704",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"2_Q2\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# YOUR CODE HERE\n",
+    "# One-hot encode BldgType. Use `prefix=\"Bldg\"` in `get_dummies`\n",
+    "X_2 = pd.get_dummies(df.BldgType, prefix=\"Bldg\")\n",
+    "# Multiply\n",
+    "X_2 = X_2.mul(df.GrLivArea, axis=0)\n",
+    "\n",
+    "\n",
+    "# Check your answer\n",
+    "q_2.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "817a5d5a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.384217Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.383748Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.388927Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.387567Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.018034,
+     "end_time": "2024-05-25T20:05:25.391613",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.373579",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Lines below will give you a hint or solution code\n",
+    "#q_2.hint()\n",
+    "#q_2.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dcfd1d52",
+   "metadata": {
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.00995,
+     "end_time": "2024-05-25T20:05:25.409868",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.399918",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 3) Count Feature\n",
+    "\n",
+    "Let's try creating a feature that describes how many kinds of outdoor areas a dwelling has. Create a feature `PorchTypes` that counts how many of the following are greater than 0.0:\n",
+    "\n",
+    "```\n",
+    "WoodDeckSF\n",
+    "OpenPorchSF\n",
+    "EnclosedPorch\n",
+    "Threeseasonporch\n",
+    "ScreenPorch\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "6519124d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.429224Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.428312Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.450939Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.449332Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.035711,
+     "end_time": "2024-05-25T20:05:25.453962",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.418251",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"3_Q3\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "X_3 = pd.DataFrame()\n",
+    "\n",
+    "# YOUR CODE HERE\n",
+    "X_3[\"PorchTypes\"] = df[[\n",
+    "    \"WoodDeckSF\",\n",
+    "    \"OpenPorchSF\",\n",
+    "    \"EnclosedPorch\",\n",
+    "    \"Threeseasonporch\",\n",
+    "    \"ScreenPorch\",\n",
+    "]].gt(0.0).sum(axis=1)\n",
+    "\n",
+    "\n",
+    "# Check your answer\n",
+    "q_3.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "f3652d14",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.474604Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.474191Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.479270Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.477990Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.018576,
+     "end_time": "2024-05-25T20:05:25.481732",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.463156",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Lines below will give you a hint or solution code\n",
+    "#q_3.hint()\n",
+    "#q_3.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8cd9656b",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008891,
+     "end_time": "2024-05-25T20:05:25.499656",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.490765",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 4) Break Down a Categorical Feature\n",
+    "\n",
+    "`MSSubClass` describes the type of a dwelling:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "dd64d4a1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.520614Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.519750Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.528939Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.527662Z"
+    },
+    "papermill": {
+     "duration": 0.022818,
+     "end_time": "2024-05-25T20:05:25.531565",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.508747",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['One_Story_1946_and_Newer_All_Styles', 'Two_Story_1946_and_Newer',\n",
+       "       'One_Story_PUD_1946_and_Newer',\n",
+       "       'One_and_Half_Story_Finished_All_Ages', 'Split_Foyer',\n",
+       "       'Two_Story_PUD_1946_and_Newer', 'Split_or_Multilevel',\n",
+       "       'One_Story_1945_and_Older', 'Duplex_All_Styles_and_Ages',\n",
+       "       'Two_Family_conversion_All_Styles_and_Ages',\n",
+       "       'One_and_Half_Story_Unfinished_All_Ages',\n",
+       "       'Two_Story_1945_and_Older', 'Two_and_Half_Story_All_Ages',\n",
+       "       'One_Story_with_Finished_Attic_All_Ages',\n",
+       "       'PUD_Multilevel_Split_Level_Foyer',\n",
+       "       'One_and_Half_Story_PUD_All_Ages'], dtype=object)"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.MSSubClass.unique()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d7105fd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008804,
+     "end_time": "2024-05-25T20:05:25.549440",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.540636",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "You can see that there is a more general categorization described (roughly) by the first word of each category. Create a feature containing only these first words by splitting `MSSubClass` at the first underscore `_`. (Hint: In the `split` method use an argument `n=1`.)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "3938960d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.569499Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.568782Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.678093Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.676904Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.122538,
+     "end_time": "2024-05-25T20:05:25.680836",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.558298",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"4_Q4\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "X_4 = pd.DataFrame()\n",
+    "\n",
+    "# YOUR CODE HERE\n",
+    "X_4[\"MSClass\"] = df.MSSubClass.str.split(\"_\", n=1, expand=True)[0]\n",
+    "\n",
+    "# Check your answer\n",
+    "q_4.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "faa17d9a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.701611Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.701162Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.706263Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.704885Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.018359,
+     "end_time": "2024-05-25T20:05:25.708735",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.690376",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Lines below will give you a hint or solution code\n",
+    "#q_4.hint()\n",
+    "#q_4.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a8a1c6c7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008761,
+     "end_time": "2024-05-25T20:05:25.726642",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.717881",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 5) Use a Grouped Transform\n",
+    "\n",
+    "The value of a home often depends on how it compares to typical homes in its neighborhood. Create a feature `MedNhbdArea` that describes the *median* of `GrLivArea` grouped on `Neighborhood`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "e4f1c81d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.747381Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.746929Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.767665Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.766512Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.034205,
+     "end_time": "2024-05-25T20:05:25.770025",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.735820",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.2, \"interactionType\": 1, \"questionType\": 2, \"questionId\": \"5_Q5\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "X_5 = pd.DataFrame()\n",
+    "\n",
+    "# YOUR CODE HERE\n",
+    "X_5[\"MedNhbdArea\"] = df.groupby(\"Neighborhood\")[\"GrLivArea\"].transform(\"median\")\n",
+    "\n",
+    "# Check your answer\n",
+    "q_5.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "dc129a22",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.790989Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.790340Z",
+     "iopub.status.idle": "2024-05-25T20:05:25.794694Z",
+     "shell.execute_reply": "2024-05-25T20:05:25.793866Z"
+    },
+    "lines_to_next_cell": 0,
+    "papermill": {
+     "duration": 0.017556,
+     "end_time": "2024-05-25T20:05:25.797006",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.779450",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Lines below will give you a hint or solution code\n",
+    "#q_5.hint()\n",
+    "#q_5.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4fd02b9e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009076,
+     "end_time": "2024-05-25T20:05:25.815574",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.806498",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Now you've made your first new feature set! If you like, you can run the cell below to score the model with all of your new features added:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "c05b139f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-05-25T20:05:25.838407Z",
+     "iopub.status.busy": "2024-05-25T20:05:25.837942Z",
+     "iopub.status.idle": "2024-05-25T20:05:28.874030Z",
+     "shell.execute_reply": "2024-05-25T20:05:28.873000Z"
+    },
+    "papermill": {
+     "duration": 3.050495,
+     "end_time": "2024-05-25T20:05:28.876739",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:25.826244",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.13954039591355258"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_new = X.join([X_1, X_2, X_3, X_4, X_5])\n",
+    "score_dataset(X_new, y)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1abe7d0e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009238,
+     "end_time": "2024-05-25T20:05:28.896667",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:28.887429",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Keep Going #\n",
+    "\n",
+    "[**Untangle spatial relationships**](https://www.kaggle.com/ryanholbrook/clustering-with-k-means) by adding cluster labels to your dataset."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "687045cd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009127,
+     "end_time": "2024-05-25T20:05:28.915538",
+     "exception": false,
+     "start_time": "2024-05-25T20:05:28.906411",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "---\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "*Have questions or comments? Visit the [course discussion forum](https://www.kaggle.com/learn/feature-engineering/discussion) to chat with other learners.*"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "formats": "ipynb"
+  },
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 933090,
+     "sourceId": 1828856,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 10.605424,
+   "end_time": "2024-05-25T20:05:29.545790",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2024-05-25T20:05:18.940366",
+   "version": "2.5.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
